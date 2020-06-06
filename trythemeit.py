@@ -11,6 +11,7 @@ with warnings.catch_warnings():
     from sklearn.model_selection import GridSearchCV
     from scipy.spatial.distance import cosine
     from statistics import median
+    import re
   
 #выполнить
 #nltk.download()
@@ -27,6 +28,8 @@ uniquek = '247a47f3e28a4e189af5d95f6bda2dec'
 from utilml import listofcleanfromdir  
 from utilml import listofsentences   
 
+
+from utilml import documentcount
 #print(generatelistfromdir())
 
 
@@ -60,13 +63,15 @@ def tiensort(Outputl):
 
     return forsort
 
-def gridsearch(data_vectorized):
+def gridsearch(data_vectorized,unique):
     '''
     data_vectorized - data after fit_transform CountVectorizer
     return best parameters топики и
     '''
+    # параметр нижний 
+    low_param= documentcount(unique) + 1
     # Define Search Param
-    search_params = {'n_components': [5,7,9,10], 'learning_decay': [.3,.5, .7, .9]}
+    search_params = {'n_components': [low_param,8,9,10], 'learning_decay': [.3,.5, .7, .9]}
 
     # Init the Model
     lda = LatentDirichletAllocation()
@@ -103,7 +108,7 @@ def generatetopics(unique):
 
     dtm = vect.fit_transform(work)
     #подбор параметров
-    best_lda_model=gridsearch(dtm)
+    best_lda_model=gridsearch(dtm,unique)
     
     lda_dtf=best_lda_model.fit_transform(dtm)
 
@@ -242,7 +247,10 @@ def generatetopics(unique):
         temparr=[]
         weightitog= warr[i]
         for i in topic[:weightitog]:
-            temparr.append(".".join(sentlist[i].split(".")[:2]))
+            s = ".".join(sentlist[i].split(".")[:2])
+            #доп преобработка
+            s = re.sub('_', '', s)
+            temparr.append(s)
 
         #print(len(temparr))
         final_arr.append(temparr)

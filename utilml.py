@@ -66,6 +66,18 @@ def takepdf(unique):
 
     return pdfarr
     
+def documentcount(unique):
+    '''
+    unique - dir id
+    return how many pdf
+    '''
+
+    count=0
+    for i in find_ext(r"files\{}\.".format(unique),"pdf"):
+        count = count + 1
+
+    return count
+
 
 def generateVWfromdir(unique):
     '''
