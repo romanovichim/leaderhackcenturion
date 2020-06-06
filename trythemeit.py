@@ -53,6 +53,12 @@ def show_topics(vectorizer, lda_model, n_words=20):
     return topic_keywords
 
 
+#lexsort of array
+def tiensort(Outputl):
+    forsort=np.array(Outputl)
+    forsort[np.lexsort((forsort[:, 2], forsort[:, 1]))]
+
+    return forsort
 
 def gridsearch(data_vectorized):
     '''
@@ -108,9 +114,11 @@ def generatetopics(unique):
     keywords = np.array(vect.get_feature_names())
     final_arr = []
     #ids_arr = []
+    warr=[]
     #Тематичность и Информативность
     for topic in best_lda_model.components_:
         Outputl=[]
+        #для хранения весов
         
         for sentence in work:
             #cчитам тематичность каждого предложения
@@ -157,16 +165,52 @@ def generatetopics(unique):
             
         iemsporog = median(column(Outputl,1))
         aiemsporog = average(column(Outputl,1))
-        #print(iemsporog,aiemsporog)
+        #print(aiemsporog)
         temsporog = median(column(Outputl,2))
         atemsporog = average(column(Outputl,2))
-        #print(temsporog,atemsporog)
+        #print(int(round(aiemsporog*atemsporog)))
+
+
+        #ВЕС тематическо информативный
+        weight = int(round(aiemsporog*atemsporog))
+        #print("вес",weight)
+        #ограничитель
         
+        if(weight > 10):
+            weight = 10
+        if(weight < 4):
+            weight = 4
+        
+        warr.append(weight)
+        #print('----')
         #for row in Outputl:
         #    print(row)
         
         #print(iemsporog,temsporog)
+
+
+        #отсортируем по тематичности и информатичности
+        #Outputsort= tiensort(Outputl[:20])
+        '''
+        itoglist=[]
+        i=0
         #сюда будем собирать итоговые предложения
+        #делая доп очистку
+        for row in Outputl:
+            if(row[0]!=''):
+                #print(row)
+                itoglist.append(sentlist[i])
+
+            i = i+1 
+
+        #print('----')
+
+
+        final_arr.append(itoglist)
+        '''
+        
+
+        '''
         itoglist=[]
         i=0
         for row in Outputl:
@@ -178,17 +222,17 @@ def generatetopics(unique):
 
         #берем по id из не очищенных предложений
         final_arr.append(itoglist)
-
-
-
-    '''
+        '''
+    
+    #print(warr)
+    
     #конец расчета коэффицентов 
     final_arr = []
 
     #сколько тем
     n_comp=0
     for topic in best_lda_model.components_:
-        n_comp=n_comp+ 
+        n_comp=n_comp+ 1
 
 
 
@@ -196,13 +240,15 @@ def generatetopics(unique):
     for i in range(n_comp):
         topic=np.argsort(lda_dtf[:,i])[::-1]
         temparr=[]
-        for i in topic[:10]:
+        weightitog= warr[i]
+        for i in topic[:weightitog]:
             temparr.append(".".join(sentlist[i].split(".")[:2]))
 
+        #print(len(temparr))
         final_arr.append(temparr)
 
     
-    '''
+    
     
     #print(final_arr)
     return final_arr
@@ -254,12 +300,12 @@ def generatetopics(unique):
     return  final_arr
     '''
     
-
+#generatetopics(uniquek)
 
 #print()
-#for i in generatetopics(uniquek):
-#    print("topiccccccccccc")
-#    print(i)
+for i in generatetopics(uniquek):
+    print("topiccccccccccc")
+    print(i)
 
 
 
