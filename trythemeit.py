@@ -303,9 +303,9 @@ def generatetopics(unique):
 #generatetopics(uniquek)
 
 #print()
-for i in generatetopics(uniquek):
-    print("topiccccccccccc")
-    print(i)
+#for i in generatetopics(uniquek):
+#    print("topiccccccccccc")
+#    print(i)
 
 
 
