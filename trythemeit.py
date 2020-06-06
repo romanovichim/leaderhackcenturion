@@ -84,7 +84,7 @@ def gridsearch(data_vectorized):
 def generatetopics(unique):
     '''
     unique - for path
-    script make 5 topic sentences from documents
+    script make topic sentences from documents
     '''
     work   =  listofcleanfromdir(unique)
 
@@ -100,17 +100,99 @@ def generatetopics(unique):
     best_lda_model=gridsearch(dtm)
     
     lda_dtf=best_lda_model.fit_transform(dtm)
+
+
+
+    #посчитаем коэффиценты 
     
+    keywords = np.array(vect.get_feature_names())
+    final_arr = []
+    #ids_arr = []
+    #Тематичность и Информативность
+    for topic in best_lda_model.components_:
+        Outputl=[]
+        
+        for sentence in work:
+            #cчитам тематичность каждого предложения
+            templ = []
+            iems = 0
+            tprofile=[]
+            #слепливаем два массива
+            for k,wprob in zip(keywords,topic):                       
+                    #слово и его пробабилити    
+                    #print(k,wprob)
+                    swords = sentence.split()
+                    
+                    for w in swords:
+                        if(w == k):
+                            #слов меньше тк убраны мальенькие - меньше 3
+                            # считаем тематичность
+                            iems = iems + wprob
+
+                    #считаем тематический профиль предложения
+                    if(k in swords):
+                        tprofile.append(wprob)
+                    else:
+                        tprofile.append(0)
+
+                    
+        
+            
+            #считаем тематический профиль cosine distance between sentence and topic
+            tems= cosine(tprofile,topic) 
+            if(np.isnan(tems)==True):
+                tems=0
+            templ.append(sentence)
+            #iems - посчитанная информативность
+            #tems - посчитанная тематичность
+            templ.append(iems)
+            templ.append(tems)
+            Outputl.append(templ)
+
+
+        #print(Outputl)
+        #возьмем пока что медианные пороги пороги
+        #Здесь надо подругому но пока так будем брать
+
+            
+        iemsporog = median(column(Outputl,1))
+        aiemsporog = average(column(Outputl,1))
+        #print(iemsporog,aiemsporog)
+        temsporog = median(column(Outputl,2))
+        atemsporog = average(column(Outputl,2))
+        #print(temsporog,atemsporog)
+        
+        #for row in Outputl:
+        #    print(row)
+        
+        #print(iemsporog,temsporog)
+        #сюда будем собирать итоговые предложения
+        itoglist=[]
+        i=0
+        for row in Outputl:
+            #print(i,row)
+            if(row[1] > iemsporog and row[2] > temsporog):
+                itoglist.append(sentlist[i])
+                
+            i = i+1 
+
+        #берем по id из не очищенных предложений
+        final_arr.append(itoglist)
+
+
+
+    '''
+    #конец расчета коэффицентов 
     final_arr = []
 
     #сколько тем
     n_comp=0
     for topic in best_lda_model.components_:
-        n_comp=n_comp+1
+        n_comp=n_comp+ 
 
- 
 
-    
+
+    # аргсорт предложений относительно вероятности слова по теме    
     for i in range(n_comp):
         topic=np.argsort(lda_dtf[:,i])[::-1]
         temparr=[]
@@ -120,7 +202,8 @@ def generatetopics(unique):
         final_arr.append(temparr)
 
     
-            
+    '''
+    
     #print(final_arr)
     return final_arr
    
